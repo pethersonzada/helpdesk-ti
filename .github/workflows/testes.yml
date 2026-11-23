@@ -1,5 +1,5 @@
 name: Testes e segurança dos microsserviços
-on: [push, pull_request]
+on: [push, pull_request, workflow_dispatch]
 
 permissions:
   contents: read
@@ -37,7 +37,7 @@ jobs:
           docker compose ps
           exit 1
       - name: Testar o fluxo completo pelo gateway
-        run: pytest -q tests-integracao/test_fluxo.py
+        run: pytest -q tests-integracao/test_fluxo.py tests-integracao/test_seguranca.py
       - name: Simular indisponibilidade do Inventário
         run: |
           docker compose stop inventario

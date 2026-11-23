@@ -85,7 +85,7 @@ pip install -r requirements-dev.txt
 pytest -q tests
 
 # Testes da arquitetura nova com o Compose em execução
-pytest -q tests-integracao/test_fluxo.py
+pytest -q tests-integracao/test_fluxo.py tests-integracao/test_seguranca.py
 
 # Falha controlada de um serviço
 docker compose stop inventario
@@ -93,7 +93,7 @@ pytest -q tests-integracao/test_falha.py
 docker compose start inventario
 ```
 
-O GitHub Actions executa os testes, verifica dependências com `pip-audit`, sobe todos os contêineres e simula a interrupção do Inventário.
+O GitHub Actions (com execução manual disponível pela aba Actions) executa os testes, verifica dependências com `pip-audit`, sobe todos os contêineres e simula a interrupção do Inventário.
 
 Para iniciar um serviço isoladamente, entre na pasta `servicos/usuarios`, `servicos/inventario` ou `servicos/chamados`, instale o `requirements.txt`, defina `JWT_SEGREDO` com pelo menos 32 caracteres e execute `uvicorn app.main:app --port 8000`. Para fluxos com dependências HTTP, também configure `URL_USUARIOS` e `URL_INVENTARIO` conforme a rede.
 
