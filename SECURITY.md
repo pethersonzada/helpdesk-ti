@@ -35,3 +35,13 @@ for colocar o sistema em produção.
 ## Como relatar um problema
 
 Encontrou uma falha? Não abra uma issue pública: envie os detalhes diretamente ao professor.
+
+
+## Segurança na arquitetura de microsserviços
+
+- Todos os serviços validam a assinatura, emissor e expiração do JWT. Os serviços internos não publicam portas no host.
+- Chamados repassa o cabeçalho Authorization nas consultas a Usuários e Inventário, sem acesso ao banco deles.
+- O Compose gera um segredo JWT persistente em um volume privado, acessível apenas aos serviços que precisam validá-lo.
+- A decisão de autorização nos serviços Inventário e Chamados segue as permissões assinadas no token até sua expiração. Para revogação imediata em produção, implemente verificação de sessão/conta ativa junto ao serviço de identidade ou tokens de curta duração.
+- As senhas das contas demonstrativas são públicas: use DADOS_EXEMPLO=0 em produção.
+- Os bancos SQLite separados atendem ao exercício; para operação real adote migrações, backup e PostgreSQL gerenciado.

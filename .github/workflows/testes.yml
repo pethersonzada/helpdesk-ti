@@ -1,22 +1,50 @@
-name: Testes e segurança
+name: Testes e segurança dos microsserviços
 on: [push, pull_request]
 
-# O workflow só pode ler o código (privilégio mínimo)
 permissions:
   contents: read
 
 jobs:
-  testes:
+  validar:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@v4
         with:
           persist-credentials: false
-      - uses: actions/setup-python@v7
+      - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - run: pip install -r requirements-dev.txt
-      - name: Testes (inclui testes de segurança)
-        run: pytest -q
-      - name: Dependências com falhas conhecidas
-        run: pip-audit -r requirements.txt
+      - name: Instalar ferramentas de teste
+        run: pip install -r requirements-dev.txt
+      - name: Conferir testes do monólito de referência
+        run: pytest -q tests
+      - name: Conferir dependências dos serviços
+        run: |
+          pip-audit -r servicos/usuarios/requirements.txt
+          pip-audit -r servicos/inventario/requirements.txt
+          pip-audit -r servicos/chamados/requirements.txt
+          pip-audit -r gateway/requirements.txt
+      - name: Subir a arquitetura distribuída
+        run: docker compose up --build -d
+      - name: Aguardar todos os serviços
+        run: |
+          for tentativa in $(seq 1 40); do
+            if curl -fsS http://127.0.0.1:8000/saude | grep -q '"status":"ok"'; then
+              exit 0
+            fi
+            sleep 3
+          done
+          docker compose ps
+          exit 1
+      - name: Testar o fluxo completo pelo gateway
+        run: pytest -q tests-integracao/test_fluxo.py
+      - name: Simular indisponibilidade do Inventário
+        run: |
+          docker compose stop inventario
+          pytest -q tests-integracao/test_falha.py
+      - name: Mostrar logs em caso de falha
+        if: failure()
+        run: docker compose logs --no-color
+      - name: Encerrar contêineres
+        if: always()
+        run: docker compose down

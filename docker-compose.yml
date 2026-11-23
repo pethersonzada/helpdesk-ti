@@ -9,6 +9,8 @@ services:
           umask 077
           head -c 48 /dev/urandom | base64 > /segredos/jwt
         fi
+        chown 10001:10001 /segredos/jwt
+        chmod 600 /segredos/jwt
     volumes:
       - segredo_jwt:/segredos
     restart: "no"
