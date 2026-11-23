@@ -1,22 +1,99 @@
 services:
-  helpdesk:
-    build: .
-    ports:
-      - "127.0.0.1:8000:8000"   # só acessível pelo próprio computador
+  preparar-segredo:
+    image: busybox:1.37.0
+    command:
+      - sh
+      - -c
+      - |
+        if [ ! -s /segredos/jwt ]; then
+          umask 077
+          head -c 48 /dev/urandom | base64 > /segredos/jwt
+        fi
+    volumes:
+      - segredo_jwt:/segredos
+    restart: "no"
+
+  usuarios:
+    build: ./servicos/usuarios
+    depends_on:
+      preparar-segredo:
+        condition: service_completed_successfully
     env_file:
       - path: .env
         required: false
     environment:
+      JWT_SEGREDO_ARQUIVO: /segredos/jwt
       DADOS_EXEMPLO: ${DADOS_EXEMPLO:-1}
     volumes:
-      - dados:/dados
+      - dados_usuarios:/dados
+      - segredo_jwt:/segredos:ro
     read_only: true
-    tmpfs:
-      - /tmp
-    security_opt:
-      - no-new-privileges:true
-    cap_drop:
-      - ALL
+    tmpfs: [/tmp]
+    security_opt: ["no-new-privileges:true"]
+    cap_drop: [ALL]
+
+  inventario:
+    build: ./servicos/inventario
+    depends_on:
+      preparar-segredo:
+        condition: service_completed_successfully
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      JWT_SEGREDO_ARQUIVO: /segredos/jwt
+      DADOS_EXEMPLO: ${DADOS_EXEMPLO:-1}
+    volumes:
+      - dados_inventario:/dados
+      - segredo_jwt:/segredos:ro
+    read_only: true
+    tmpfs: [/tmp]
+    security_opt: ["no-new-privileges:true"]
+    cap_drop: [ALL]
+
+  chamados:
+    build: ./servicos/chamados
+    depends_on:
+      preparar-segredo:
+        condition: service_completed_successfully
+      usuarios:
+        condition: service_started
+      inventario:
+        condition: service_started
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      JWT_SEGREDO_ARQUIVO: /segredos/jwt
+      URL_USUARIOS: http://usuarios:8000
+      URL_INVENTARIO: http://inventario:8000
+    volumes:
+      - dados_chamados:/dados
+      - segredo_jwt:/segredos:ro
+    read_only: true
+    tmpfs: [/tmp]
+    security_opt: ["no-new-privileges:true"]
+    cap_drop: [ALL]
+
+  gateway:
+    build: ./gateway
+    depends_on:
+      - usuarios
+      - inventario
+      - chamados
+    environment:
+      URL_USUARIOS: http://usuarios:8000
+      URL_INVENTARIO: http://inventario:8000
+      URL_CHAMADOS: http://chamados:8000
+    ports:
+      - "127.0.0.1:8000:8000"
+    read_only: true
+    tmpfs: [/tmp]
+    security_opt: ["no-new-privileges:true"]
+    cap_drop: [ALL]
 
 volumes:
-  dados:
+  segredo_jwt:
+  dados_usuarios:
+  dados_inventario:
+  dados_chamados:

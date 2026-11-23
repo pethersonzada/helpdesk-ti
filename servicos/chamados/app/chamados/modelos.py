@@ -31,7 +31,7 @@ class Comentario(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True)
     chamado_id: Mapped[int] = mapped_column(ForeignKey("chamados.id"))
-    autor_id: Mapped[int] = mapped_column(ForeignKey("usuarios.id"))
+    autor_id: Mapped[int] = mapped_column()
     texto: Mapped[str] = mapped_column(Text)
     criado_em: Mapped[datetime] = mapped_column(DateTime)
 
