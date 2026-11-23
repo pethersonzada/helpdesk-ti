@@ -87,6 +87,7 @@ services:
       URL_USUARIOS: http://usuarios:8000
       URL_INVENTARIO: http://inventario:8000
       URL_CHAMADOS: http://chamados:8000
+      DOCS: ${DOCS:-1}
     ports:
       - "127.0.0.1:8000:8000"
     read_only: true

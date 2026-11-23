@@ -1,8 +1,7 @@
-"""Regras do módulo de chamados.
+"""Regras do serviço independente de Chamados.
 
-Repare nas chamadas para `usuarios.servico`, `inventario.servico` e
-`notificacoes.servico`: no monólito elas são chamadas de função, dentro do
-mesmo processo. Em microsserviços, elas viram chamadas pela rede ou eventos.
+Usuários e Inventário são consultados por HTTP autenticado com tempo limite.
+As notificações permanecem no banco local de Chamados.
 
 Permissões:
 - solicitante: abre chamados e só vê, comenta e fecha os próprios;

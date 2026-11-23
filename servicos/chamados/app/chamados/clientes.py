@@ -37,7 +37,10 @@ def consultar(base: str, caminho: str, token: str, nome: str) -> dict:
     if resposta.status_code != 200:
         raise HTTPException(status_code=502, detail=f"Resposta inesperada do serviço de {nome}.")
     try:
-        return resposta.json()
+        dados = resposta.json()
+        if not isinstance(dados, dict):
+            raise ValueError("Resposta não é um objeto JSON.")
+        return dados
     except ValueError as erro:
         raise HTTPException(status_code=502, detail=f"Resposta inválida do serviço de {nome}.") from erro
 
@@ -48,4 +51,10 @@ def conferir_tecnico(usuario_id: int, token: str) -> UsuarioExterno:
     dados = consultar(URL_USUARIOS, f"/usuarios/{usuario_id}", token, "Usuários")
     if dados.get("perfil") != "tecnico":
         raise RegraDeNegocio(f"Usuário {usuario_id} não é técnico.")
-    return UsuarioExterno(id=int(dados["id"]), perfil=dados["perfil"])
+    try:
+        identificador = int(dados["id"])
+        if identificador < 1:
+            raise ValueError("Identificador inválido.")
+    except (KeyError, ValueError, TypeError) as erro:
+        raise HTTPException(status_code=502, detail="Resposta inválida do serviço de Usuários.") from erro
+    return UsuarioExterno(id=identificador, perfil=dados["perfil"])

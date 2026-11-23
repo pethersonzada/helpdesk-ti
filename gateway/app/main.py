@@ -11,6 +11,7 @@ from fastapi.responses import FileResponse, JSONResponse, Response
 from app.seguranca_http import CabecalhosDeSeguranca
 
 WEB = Path(__file__).resolve().parent.parent / "web"
+DOCS_ATIVA = os.getenv("DOCS", "1") == "1"
 SERVICOS = {
     "usuarios": os.getenv("URL_USUARIOS", "http://usuarios:8000").rstrip("/"),
     "inventario": os.getenv("URL_INVENTARIO", "http://inventario:8000").rstrip("/"),
@@ -54,11 +55,15 @@ async def saude():
 
 @app.get("/docs", include_in_schema=False)
 def documentacao():
+    if not DOCS_ATIVA:
+        raise HTTPException(status_code=404, detail="Documentação desabilitada.")
     return get_swagger_ui_html(openapi_url="/openapi.json", title="HelpDesk TI | APIs")
 
 @app.get("/openapi.json", include_in_schema=False)
 async def documentacao_integrada():
     """Reúne os esquemas OpenAPI dos serviços, conservando os caminhos públicos."""
+    if not DOCS_ATIVA:
+        raise HTTPException(status_code=404, detail="Documentação desabilitada.")
     resultado = {"openapi": "3.1.0", "info": {"title": "HelpDesk TI", "version": "3.0.0"},
                  "paths": {}, "components": {"schemas": {}, "securitySchemes": {}}}
     async with httpx.AsyncClient(timeout=3.0) as cliente:

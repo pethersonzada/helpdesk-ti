@@ -1,4 +1,4 @@
-"""API independente de inventario."""
+"""API independente de Inventário."""
 import os
 from contextlib import asynccontextmanager
 
@@ -23,7 +23,7 @@ async def ciclo_de_vida(app: FastAPI):
     yield
 
 app = FastAPI(
-    title="HelpDesk TI | inventario", version="3.0.0", lifespan=ciclo_de_vida,
+    title="HelpDesk TI | Inventário", version="3.0.0", lifespan=ciclo_de_vida,
     docs_url="/docs" if DOCS_ATIVA else None, redoc_url=None,
     openapi_url="/openapi.json" if DOCS_ATIVA else None,
 )
