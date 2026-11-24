@@ -99,12 +99,16 @@ Para iniciar um serviço isoladamente, entre na pasta `servicos/usuarios`, `serv
 
 ## Vídeo de entrega
 
+https://youtu.be/XTesqtbclFo
+
 Grave 4 a 6 minutos mostrando, nesta ordem:
 
 1. Diagrama de arquitetura e papel de cada serviço.
 2. `docker compose up --build` e `docker compose ps`.
 3. Login, criação, atribuição, resolução e fechamento de um chamado pela interface.
 4. Acesso sem token (401) e usuário que não consegue ver chamado de outra pessoa.
+
+
 5. Bancos separados, via `docker volume ls` ou `docker compose config`.
 6. `docker compose stop inventario`: listagens continuam funcionando e abertura com ativo retorna 503.
 7. `docker compose start inventario` e explicação sobre vantagens e custos da separação.
