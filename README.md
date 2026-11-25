@@ -4,6 +4,8 @@ Migração do sistema monolítico para três serviços independentes em **Python
 
 **Vídeo de demonstração (4 a 6 minutos):** adicionar aqui o link após a gravação.
 
+Entrega do vídeo: https://youtu.be/XTesqtbclFo
+
 ## Arquitetura
 
 ```mermaid
@@ -98,8 +100,6 @@ O GitHub Actions (com execução manual disponível pela aba Actions) executa os
 Para iniciar um serviço isoladamente, entre na pasta `servicos/usuarios`, `servicos/inventario` ou `servicos/chamados`, instale o `requirements.txt`, defina `JWT_SEGREDO` com pelo menos 32 caracteres e execute `uvicorn app.main:app --port 8000`. Para fluxos com dependências HTTP, também configure `URL_USUARIOS` e `URL_INVENTARIO` conforme a rede.
 
 ## Vídeo de entrega
-
-https://youtu.be/XTesqtbclFo
 
 Grave 4 a 6 minutos mostrando, nesta ordem:
 
